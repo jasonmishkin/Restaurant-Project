@@ -1,0 +1,139 @@
+#Year:2019
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2019#data-table',2019)
+y2019 = df
+y2019
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2019
+new = year2019['Meals Served']=df['Meals Served'].str.replace(',','')
+newer = year2019['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+year2019['Meals Served'] = pd.to_numeric(year2019['Meals Served'])
+year2019['Sales'] = pd.to_numeric(year2019['Sales'])
+topmeals2019 = year2019[year2019['Meals Served'] > 750000]
+topsales2019 = year2019[year2019['Sales'] > 27000000]
+frames4 = [topmeals2019,topsales2019]
+combined2019 = pd.concat(frames4)
+topmeals5 = combined2019[['Restaurant','Meals Served', 'Sales']]
+topmeals5.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+#Year:2018
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2018#data-table',2018)
+y2018 = df
+y2018
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2018
+new1 = y2018['Meals Served']=df['Meals Served'].str.replace(',','')
+newer1 = y2018['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+y2018['Meals Served'] = pd.to_numeric(y2018['Meals Served'])
+y2018['Sales'] = pd.to_numeric(y2018['Sales'])
+topmeals2018 = y2018[y2018['Meals Served'] > 955000]
+topsales2018 = y2018[y2018['Sales'] > 33100000]
+frames3 = [topmeals2018,topsales2018]
+combined2018 = pd.concat(frames3)
+topmeals4 = combined2018[['Restaurant','Meals Served', 'Sales']]
+topmeals4.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+#Year:2017
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2017#data-table',2017)
+y2017 = df
+y2017
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2017
+new2 = y2017['Meals Served']=df['Meals Served'].str.replace(',','')
+newer2 = y2017['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+y2017['Meals Served'] = pd.to_numeric(y2017['Meals Served'])
+y2017['Sales'] = pd.to_numeric(y2017['Sales'])
+topmeals2017 = y2017[y2017['Meals Served'] > 800000]
+topsales2017 = y2017[y2017['Sales'] > 31000000]
+topsales2017
+frames2 = [topmeals2017,topsales2017]
+combined2017 = pd.concat(frames2)
+topmeals3 = combined2017[['Restaurant','Meals Served', 'Sales']]
+topmeals3.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+#Year:2016
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2016#data-table',2016)
+y2016 = df
+y2016
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2016
+new3 = y2016['Meals Served']=df['Meals Served'].str.replace(',','')
+newer3 = y2016['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+y2016['Meals Served'] = pd.to_numeric(y2016['Meals Served'])
+y2016['Sales'] = pd.to_numeric(y2016['Sales'])
+topmeals2016 = y2016[y2016['Meals Served'] > 800000]
+topsales2016 = y2016[y2016['Sales'] > 30000000]
+frames1 = [topmeals2016,topsales2016]
+combined2016 = pd.concat(frames1)
+topmeals2 = combined2016[['Restaurant','Meals Served', 'Sales']]
+topmeals2.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+#Year:2015
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2015#data-table',2015)
+y2015 = df
+y2015
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2017
+new4 = y2015['Meals Served']=df['Meals Served'].str.replace(',','')
+newer4 = y2015['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+y2015['Meals Served'] = pd.to_numeric(y2015['Meals Served'])
+y2015['Sales'] = pd.to_numeric(y2015['Sales'])
+topmeals2015 = y2015[y2015['Meals Served'] > 680000]
+topsales2015 = y2015[y2015['Sales'] > 30000000]
+frames = [topmeals2015,topsales2015]
+combined2015 = pd.concat(frames)
+topmeals1 = combined2015[['Restaurant','Meals Served', 'Sales']]
+topmeals1.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+import matplotlib.pyplot as plt
+fig, axes = plt.subplots(5,3,figsize =(30,30))
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2015
+fig.tight_layout(pad=20.0)
+topmeals1.plot.bar(x='Restaurant',y='Meals Served',ax=axes[0,0])
+topmeals1.plot.bar(x='Restaurant',y='Sales',ax=axes[0,1])
+topmeals1.plot.scatter(x='Meals Served',y='Sales',ax=axes[0,2])
+axes[0,0].set_title('Most Meals Served 2015')
+axes[0,1].set_title('Most Sales 2015')
+axes[0,2].set_title('Meals Served vs Sales 2015')
+axes[0,0].set_ylabel('Meals Served')
+axes[0,1].set_ylabel('Sales')
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2016
+topmeals2.plot.bar(x='Restaurant',y='Meals Served',ax=axes[1,0])
+topmeals2.plot.bar(x='Restaurant',y='Sales',ax=axes[1,1])
+topmeals2.plot.scatter(x='Meals Served',y='Sales',ax=axes[1,2])
+axes[1,0].set_title('Most Meals Served 2016')
+axes[1,1].set_title('Most Sales 2016')
+axes[1,2].set_title('Meals Served vs Sales 2016')
+axes[1,0].set_ylabel('Meals Served')
+axes[1,1].set_ylabel('Sales')
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2017
+topmeals3.plot.bar(x='Restaurant',y='Meals Served',ax=axes[2,0])
+topmeals3.plot.bar(x='Restaurant',y='Sales',ax=axes[2,1])
+topmeals3.plot.scatter(x='Meals Served',y='Sales',ax=axes[2,2])
+axes[2,0].set_title('Most Meals Served 2017')
+axes[2,1].set_title('Most Sales 2017')
+axes[2,2].set_title('Meals Served vs Sales 2017')
+axes[2,0].set_ylabel('Meals Served')
+axes[2,1].set_ylabel('Sales')
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2018
+topmeals4.plot.bar(x='Restaurant',y='Meals Served',ax=axes[3,0])
+topmeals4.plot.bar(x='Restaurant',y='Sales',ax=axes[3,1])
+topmeals4.plot.scatter(x='Meals Served',y='Sales',ax=axes[3,2])
+axes[3,0].set_title('Most Meals Served 2018')
+axes[3,1].set_title('Most Sales 2018')
+axes[3,2].set_title('Meals Served vs Sales 2018')
+axes[3,0].set_ylabel('Meals Served')
+axes[3,1].set_ylabel('Sales')
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2019
+topmeals5.plot.bar(x='Restaurant',y='Meals Served',ax=axes[4,0])
+topmeals5.plot.bar(x='Restaurant',y='Sales',ax=axes[4,1])
+topmeals5.plot.scatter(x='Meals Served',y='Sales',ax=axes[4,2])
+axes[4,0].set_title('Most Meals Served 2019')
+axes[4,1].set_title('Most Sales 2019')
+axes[4,2].set_title('Meals Served vs Sales 2019')
+axes[4,0].set_ylabel('Meals Served')
+axes[4,1].set_ylabel('Sales')
