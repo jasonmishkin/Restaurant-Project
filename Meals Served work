@@ -168,17 +168,17 @@ plt.ylabel('Meals Served')
 plt.xticks(rotation=45)
 
 topmeals1.plot.scatter(x='Meals Served',y='Sales')
-plt.title('Most Meals Served 2015',pad=15, color='#333333',weight='bold')
+plt.title('Meals Served vs Sales 2015',pad=15, color='#333333',weight='bold')
 
 topmeals2.plot.scatter(x='Meals Served',y='Sales')
-plt.title('Most Meals Served 2065',pad=15, color='#333333',weight='bold')
+plt.title('Meals Served vs Sales 2016',pad=15, color='#333333',weight='bold')
 
 topmeals3.plot.scatter(x='Meals Served',y='Sales')
-plt.title('Most Meals Served 2017',pad=15, color='#333333',weight='bold')
+plt.title('Meals Served vs Sales 2017',pad=15, color='#333333',weight='bold')
 
 topmeals4.plot.scatter(x='Meals Served',y='Sales')
-plt.title('Most Meals Served 2018',pad=15, color='#333333',weight='bold')
+plt.title('Meals Served vs Sales 2018',pad=15, color='#333333',weight='bold')
 
 topmeals5.plot.scatter(x='Meals Served',y='Sales')
-plt.title('Most Meals Served 2019',pad=15, color='#333333',weight='bold')
+plt.title('Meals Served vs Sales 2019',pad=15, color='#333333',weight='bold')
 
