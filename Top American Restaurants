@@ -1,0 +1,336 @@
+import requests
+import matplotlib.pyplot as plt
+from bs4 import BeautifulSoup as bs
+import numpy as np
+import pandas as pd
+import pylab
+import statsmodels.api as sm
+url = 'https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2019#data-table'
+#print(soup.find('table'))
+# Get the content of the website and convert it and used beautifulsoup 
+#to parse through it
+
+#Makes a function to scrape website on multiple years
+def scraper(fullurl,year):
+    global df
+    url = fullurl
+    r = requests.get(url)
+    src = r.content
+    soup = bs(src, 'html.parser')
+    los = soup.find_all('table')
+    RR = ResturantRankings = []
+    for table in los:
+        headers = []  #set us a list for the headers
+        rows = table.find_all('tr') 
+    for header in table.find('tr').find_all('th'):   #This searches through the first row for the headers
+        headers.append(header.text)  #this adds each text for each column in the row to the list
+    for row in table.find_all('tr')[1:]:   #this makes the loop start from the first row
+        values = []
+        for col in row.find_all(['th','td']):
+            values.append(col.text) #Adds each value to the list
+            
+        if values:
+            state_dict = {}
+            for i in range(len(values)):
+                state_dict[headers[i]] = values[i]  #creates the dictionary 
+            RR.append(state_dict)
+    df = pd.DataFrame(RR)
+    df['Year']=year
+    
+ 
+#Year:2019
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2018#data-table',2019)
+y2019 = df
+#Year:2018
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2018#data-table',2018)
+y2018 = df
+#Year:2017
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2017#data-table',2017)
+y2017 = df
+#Year:2016
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2016#data-table',2016)
+y2016 = df
+#Year:2015
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2015#data-table',2015)
+y2015 = df
+frames = [y2015, y2016, y2017,y2018,y2019]
+y2015_2019 = pd.concat(frames)
+
+
+y2015_2019.to_csv('y2015_2019.csv', index=False)
+
+
+column_1 = y2015_2019["Rank"]
+column_2 = y2015_2019["Meals Served"].str.replace(",","")
+Rank = pd.to_numeric(column_1)
+Meals_Served = pd.to_numeric(column_2)
+correlation = Rank.corr(Meals_Served)
+print("The correlation between meals served and Ranking is",correlation)
+
+X = Meals_Served
+Y = Rank
+plt.scatter(X, Y, marker='o')
+plt.title("Meals Served vs Resturant Ranking",pad=15, color='#333333',weight='bold')
+plt.show()
+
+model = sm.OLS(Y, X).fit()
+predictions = model.predict(X) # make the predictions by the model
+
+# Print out the statistics
+model.summary()
+
+
+ListofCities = y2015_2019.City.unique() # Gets all unique City Names
+Resturants = y2015_2019.Restaurant.unique()
+Resturants = Resturants.tolist()
+R_Appearances = y2015_2019.Restaurant.tolist()
+Apperances_List = []
+for item in Resturants:
+    
+    count = 0
+    for name in R_Appearances:
+        if name == item:
+            count += 1
+    Apperances_List.append(count)
+
+data_dict = {'Resturant': Resturants,
+             'Number_of_Appearances': Apperances_List}
+
+df = pd.DataFrame(data_dict)
+df = df.sort_values("Number_of_Appearances", axis=0, ascending=False)
+
+df[0:7].plot(x= "Resturant", y= "Number_of_Appearances", kind='bar')
+plt.title("Number of Times Resturant Appeared on Ranking",pad=15, color='#333333',weight='bold')
+
+#Change New York to New York City 
+List = y2015_2019['City'].tolist()
+newlist = []
+for item in List:
+    if item == "New York":
+        item = "New York City"
+    newlist.append(item)
+List = newlist
+
+Numberoftimes = []
+for item in ListofCities:
+    
+    count = 0
+    for city in List:
+        if item == city:
+            count += 1
+    Numberoftimes.append(count)
+
+data_dict = {'City': ListofCities,
+             'Number_of_Resturants': Numberoftimes}
+
+df = pd.DataFrame(data_dict)
+df = df.sort_values("Number_of_Resturants", axis=0, ascending=False)
+#df
+df[0:5]
+
+df[0:5].plot(x= "City", y= "Number_of_Resturants", kind='bar')
+plt.title("Number of Resturant by City",pad=15, color='#333333',weight='bold')
+
+#Jason
+#Year:2019
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2019#data-table',2019)
+year2019 = df
+
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2019
+new = year2019['Meals Served']=df['Meals Served'].str.replace(',','')
+newer = year2019['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+year2019['Meals Served'] = pd.to_numeric(year2019['Meals Served'])
+year2019['Sales'] = pd.to_numeric(year2019['Sales'])
+topmeals2019 = year2019[year2019['Meals Served'] > 750000]
+topsales2019 = year2019[year2019['Sales'] > 27000000]
+frames4 = [topmeals2019,topsales2019]
+combined2019 = pd.concat(frames4)
+topmeals5 = combined2019[['Restaurant','Meals Served', 'Sales']]
+topmeals5.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+#Year:2018
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2018#data-table',2018)
+y2018 = df
+y2018
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2018
+new1 = y2018['Meals Served']=df['Meals Served'].str.replace(',','')
+newer1 = y2018['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+y2018['Meals Served'] = pd.to_numeric(y2018['Meals Served'])
+y2018['Sales'] = pd.to_numeric(y2018['Sales'])
+topmeals2018 = y2018[y2018['Meals Served'] > 955000]
+topsales2018 = y2018[y2018['Sales'] > 33100000]
+frames3 = [topmeals2018,topsales2018]
+combined2018 = pd.concat(frames3)
+topmeals4 = combined2018[['Restaurant','Meals Served', 'Sales']]
+topmeals4.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+#Year:2017
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2017#data-table',2017)
+y2017 = df
+y2017
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2017
+new2 = y2017['Meals Served']=df['Meals Served'].str.replace(',','')
+newer2 = y2017['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+y2017['Meals Served'] = pd.to_numeric(y2017['Meals Served'])
+y2017['Sales'] = pd.to_numeric(y2017['Sales'])
+topmeals2017 = y2017[y2017['Meals Served'] > 800000]
+topsales2017 = y2017[y2017['Sales'] > 31000000]
+topsales2017
+frames2 = [topmeals2017,topsales2017]
+combined2017 = pd.concat(frames2)
+topmeals3 = combined2017[['Restaurant','Meals Served', 'Sales']]
+topmeals3.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+#Year:2016
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2016#data-table',2016)
+y2016 = df
+y2016
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2016
+new3 = y2016['Meals Served']=df['Meals Served'].str.replace(',','')
+newer3 = y2016['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+y2016['Meals Served'] = pd.to_numeric(y2016['Meals Served'])
+y2016['Sales'] = pd.to_numeric(y2016['Sales'])
+topmeals2016 = y2016[y2016['Meals Served'] > 800000]
+topsales2016 = y2016[y2016['Sales'] > 30000000]
+frames1 = [topmeals2016,topsales2016]
+combined2016 = pd.concat(frames1)
+topmeals2 = combined2016[['Restaurant','Meals Served', 'Sales']]
+topmeals2.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+#Year:2015
+scraper('https://www.restaurantbusinessonline.com/top-100-independents-2018?year=2015#data-table',2015)
+y2015 = df
+y2015
+
+#Found top 5 Restaurants with the Most Served Meals compared to the Most Sales for 2017
+new4 = y2015['Meals Served']=df['Meals Served'].str.replace(',','')
+newer4 = y2015['Sales']=df['Sales'].str.replace(',','').str.replace('$','').str.replace('*','')
+y2015['Meals Served'] = pd.to_numeric(y2015['Meals Served'])
+y2015['Sales'] = pd.to_numeric(y2015['Sales'])
+topmeals2015 = y2015[y2015['Meals Served'] > 680000]
+topsales2015 = y2015[y2015['Sales'] > 30000000]
+frames = [topmeals2015,topsales2015]
+combined2015 = pd.concat(frames)
+topmeals1 = combined2015[['Restaurant','Meals Served', 'Sales']]
+topmeals1.pivot_table(index = 'Restaurant').sort_values(by = 'Meals Served', ascending = False)
+
+import matplotlib.pyplot as plt
+fig, axes = plt.subplots(5,3,figsize =(30,30))
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2015
+fig.tight_layout(pad=20.0)
+topmeals1.plot.bar(x='Restaurant',y='Meals Served',ax=axes[0,0])
+topmeals1.plot.bar(x='Restaurant',y='Sales',ax=axes[0,1])
+topmeals1.plot.scatter(x='Meals Served',y='Sales',ax=axes[0,2])
+axes[0,0].set_title('Most Meals Served 2015')
+axes[0,1].set_title('Most Sales 2015')
+axes[0,2].set_title('Meals Served vs Sales 2015')
+axes[0,0].set_ylabel('Meals Served')
+axes[0,1].set_ylabel('Sales')
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2016
+topmeals2.plot.bar(x='Restaurant',y='Meals Served',ax=axes[1,0])
+topmeals2.plot.bar(x='Restaurant',y='Sales',ax=axes[1,1])
+topmeals2.plot.scatter(x='Meals Served',y='Sales',ax=axes[1,2])
+axes[1,0].set_title('Most Meals Served 2016')
+axes[1,1].set_title('Most Sales 2016')
+axes[1,2].set_title('Meals Served vs Sales 2016')
+axes[1,0].set_ylabel('Meals Served')
+axes[1,1].set_ylabel('Sales')
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2017
+topmeals3.plot.bar(x='Restaurant',y='Meals Served',ax=axes[2,0])
+topmeals3.plot.bar(x='Restaurant',y='Sales',ax=axes[2,1])
+topmeals3.plot.scatter(x='Meals Served',y='Sales',ax=axes[2,2])
+axes[2,0].set_title('Most Meals Served 2017')
+axes[2,1].set_title('Most Sales 2017')
+axes[2,2].set_title('Meals Served vs Sales 2017')
+axes[2,0].set_ylabel('Meals Served')
+axes[2,1].set_ylabel('Sales')
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2018
+topmeals4.plot.bar(x='Restaurant',y='Meals Served',ax=axes[3,0])
+topmeals4.plot.bar(x='Restaurant',y='Sales',ax=axes[3,1])
+topmeals4.plot.scatter(x='Meals Served',y='Sales',ax=axes[3,2])
+axes[3,0].set_title('Most Meals Served 2018')
+axes[3,1].set_title('Most Sales 2018')
+axes[3,2].set_title('Meals Served vs Sales 2018')
+axes[3,0].set_ylabel('Meals Served')
+axes[3,1].set_ylabel('Sales')
+
+#Creating a bar graph to show restaurants with most meals served, compared to most sales for 2019
+topmeals5.plot.bar(x='Restaurant',y='Meals Served',ax=axes[4,0])
+topmeals5.plot.bar(x='Restaurant',y='Sales',ax=axes[4,1])
+topmeals5.plot.scatter(x='Meals Served',y='Sales',ax=axes[4,2])
+axes[4,0].set_title('Most Meals Served 2019')
+axes[4,1].set_title('Most Sales 2019')
+axes[4,2].set_title('Meals Served vs Sales 2019')
+axes[4,0].set_ylabel('Meals Served')
+axes[4,1].set_ylabel('Sales')
+
+
+
+#Ridhi
+###This is wonky and will return error half of the times
+#the following strips the sales values of any string content and converts it to an integer
+df = y2015_2019
+#the following strips the sales values of any string content and converts it to an integer
+df['Sales'] = y2015_2019["Sales"].str.replace(",","")
+df['Sales'] = y2015_2019["Sales"].str.replace("$","")
+df['Sales'] = y2015_2019["Sales"].str.replace("*","")
+df['Sales'] = pd.to_numeric(df['Sales'])
+
+
+#Praneeta 
+# resturant-project
+#copying and keeping only data eastcoast and westcoast from 2015-2019
+State_Keep= ['Nev.', 'N.Y.', 'Fla.', 'Mass.', 'Calif.']
+resturant= df[df.State.isin(State_Keep)].copy()
+resturant
+#printing the amount of rows and columns in the copied data
+print('The reduced dataframe has {0} rows and {1} columns'.format(resturant.shape[0], resturant.shape[1]))
+#finding if there is missing data from any row or column from the copied data
+print('Are there missing values? {}'.format(resturant.isnull().any().any()))
+
+
+#finding the highest annual sales in $ of resturants from the extracted years and states 
+
+af= resturant.pivot_table(index='Restaurant',values=['Sales','State'], aggfunc= max)
+af.sort_values(by=['Sales'],inplace= True, ascending= False)
+af
+
+#showing in a chart what annual sales are like from 2015 to 2019 (pre covid) in states across the east and west coast
+a = resturant.pivot_table('Sales', index='State', columns= 'Year', aggfunc= max)
+e = a.T
+e
+
+e.plot(kind = "bar")
+plt.title("Sales by City by Year",pad=15, color='#333333',weight='bold')
+
+
+#the following reduced the states based to only NY
+State =['N.Y.']
+Reduced = df[df.State.isin(State)].copy()
+Reduced
+
+Reduced.pivot_table(values= 'Sales', index = "Restaurant").sort_values('Sales', ascending = False).round()
+
+#Most Popular Resturant 
+POP = df.pivot_table(values = ["Sales"], index = "Restaurant", aggfunc= sum).sort_values("Sales", ascending = False).round(2)
+POP[0:5].plot( y= "Sales", kind='bar')
+plt.title("Most Popular Resturants by Sales",pad=15, color='#333333',weight='bold')
+
+
+df["Meals Served"] = y2015_2019["Meals Served"].str.replace(",","")
+df["Meals Served"] = pd.to_numeric(df['Meals Served'])
+
+#Most popular Resturant by Meals Served
+a = df.pivot_table(values = ["Meals Served"], index = "Restaurant", aggfunc= sum).sort_values("Meals Served", ascending = False).round(2)
+
+a[0:5].plot( y= "Meals Served", kind='bar')
+plt.title("Most Popular Resturants by Meal Served",pad=15, color='#333333',weight='bold')
+
